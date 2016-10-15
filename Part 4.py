@@ -35,13 +35,14 @@ def edit_distance(seq1, seq2):
         edit_type[0][j] = 'D'
         edit_path[0][j] = 'u'
         
-    for i in range(1, len(seq1)+1):       # iterates over the rows of edit
-        for j in range(1, len(seq2)+1):   # iterates over the columns of edit
-            if seq1[i-1] == seq2[j-1]:
-                edit[i][j] = edit[i - 1][j - 1]
+    for i in range(1, len(seq1)+1):         # iterates over the rows of edit
+        for j in range(1, len(seq2)+1):     # iterates over the columns of edit
+            if seq1[i-1] == seq2[j-1]:      # If the two letters are a match
+                cost = Match_cost(seq1[i-1], seq2[j-1], edit_type[i-1][j-1])                
+                edit[i][j] = edit[i - 1][j - 1] + cost
                 edit_type[i][j] = 'M'
                 edit_path[i][j] = 'u_l'
-                # If the two letters are a match, the edit cost is zero
+                
             else:
                 # Find min surrounding value
                 # Find type of that value
@@ -101,16 +102,16 @@ def Insert_cost(letter1, letter2, prev_type):
         return g_e  
     
     
-'''
+
 a = open('seq1', 'r')
-a_seq = a.read()
+a_seq = a.read().rstrip()
 a.close()
 b = open('seq2', 'r')
-b_seq = b.read()
+b_seq = b.read().rstrip()
 b.close()
 print(a_seq)
 print(b_seq)
-'''
+
 f = open('submat', 'r')
 submat = [line.split() for line in f]
 f.close()
@@ -128,7 +129,8 @@ g_0 = 10                    # so it's not favourable
 # define global variable: g_e, gap extension penalty
 g_e = 5                     # more favourable then opening a new gap
 
-'''
+
 edit_distance(b_seq, a_seq)
 '''
 edit_distance('ATA', 'AGTA')
+'''
