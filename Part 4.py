@@ -5,6 +5,7 @@ Author: Anthony Silvestre
 Purpose: 
 """
 import numpy as np
+import time as t
 '''
 def opt_alignment(seq1, seq2, sub_mat):
 '''    
@@ -16,7 +17,6 @@ def opt_alignment(seq1, seq2):
     edit = [x[:] for x in [[0]*(len(seq2)+1)]*(len(seq1)+1)]
     edit_type = [x[:] for x in [[0]*(len(seq2)+1)]*(len(seq1)+1)]
     edit_path = [x[:] for x in [[0]*(len(seq2)+1)]*(len(seq1)+1)]
-    print()
     # sequence 1 is along the x axis
     # sequence 2 is along the y axis
   
@@ -24,16 +24,24 @@ def opt_alignment(seq1, seq2):
     edit[0][0] = 0
     edit_type[0][0] = 'M'
     edit_path[0][0] = '-'
-
-    for i in range(1, len(seq1)+1):
-        edit[i][0]= edit[i-1][0] + g_e
-        edit_type[i][0] = 'I'
-        edit_path[i][0] = 'l'
     
-    for j in range(1, len(seq2)+1):
+    edit[0][1] = edit[0][0] + g_0   # Sets the initial M to I transition here
+    edit_type[0][1] = 'I'
+    
+    edit[1][0] = edit[0][0] + g_0   # Sets the initial M to D transition here
+    edit_type[1][0] = 'D'
+    
+    # Sets the first row of I to I transitions
+    for j in range(2, len(seq2)+1):
         edit[0][j]= edit[0][j-1] + g_e
-        edit_type[0][j] = 'D'
-        edit_path[0][j] = 'u'
+        edit_type[0][j] = 'I'
+        edit_path[0][j] = 'l'
+    
+    # Sets the first column of D to D transitions
+    for i in range(2, len(seq1)+1):
+        edit[i][0]= edit[i-1][0] + g_e
+        edit_type[i][0] = 'D'
+        edit_path[i][0] = 'u'
         
     for i in range(1, len(seq1)+1):         # iterates over the rows of edit
         for j in range(1, len(seq2)+1):     # iterates over the columns of edit
@@ -55,18 +63,18 @@ def opt_alignment(seq1, seq2):
                     edit_type[i][j] = 'M'
                     edit_path[i][j] = 'u_l'
                 elif edit[i-1][j] == min_val:
-                    # Insertion
-                    cost = Insert_cost(seq1[i-1], seq2[j-1], edit_type[i-1][j])
-                    edit[i][j] = edit[i-1][j] + cost
-                    edit_type[i][j] = 'I'
-                    edit_path[i][j] = 'l'
-                elif edit[i][j-1] == min_val:
                     # Deletion
-                    cost = Delete_cost(seq1[i-1], seq2[j-1], edit_type[i][j-1])
-                    edit[i][j] = edit[i][j-1] + cost
+                    cost = Delete_cost(seq1[i-1], seq2[j-1], edit_type[i-1][j])
+                    edit[i][j] = edit[i-1][j] + cost
                     edit_type[i][j] = 'D'
                     edit_path[i][j] = 'u'
-               
+                elif edit[i][j-1] == min_val:
+                    # Insertion
+                    cost = Insert_cost(seq1[i-1], seq2[j-1], edit_type[i][j-1])
+                    edit[i][j] = edit[i][j-1] + cost
+                    edit_type[i][j] = 'I'
+                    edit_path[i][j] = 'l'
+                    
     print(backtrack(seq1, seq2, edit_type))     # outputs the optimal alignment   
     return edit[len(seq1)-1][len(seq2)-1]       # optimal alignment score
    
@@ -143,6 +151,7 @@ b_seq = b.read().rstrip()
 b.close()
 print(a_seq)
 print(b_seq)
+print()
 
 f = open('submat', 'r')
 submat = [line.split() for line in f]
