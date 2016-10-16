@@ -9,7 +9,7 @@ import numpy as np
 def opt_alignment(seq1, seq2, sub_mat):
 '''    
 
-def edit_distance(seq1, seq2):
+def opt_alignment(seq1, seq2):
     '''
     Computes the edit distance betweeen the two input sequences iteratively
     '''
@@ -67,8 +67,8 @@ def edit_distance(seq1, seq2):
                     edit_type[i][j] = 'D'
                     edit_path[i][j] = 'u'
                
-    print(np.array(edit))    
-    return edit[len(seq1)-1][len(seq2)-1]
+    print(backtrack(seq1, seq2, edit_type))     # outputs the optimal alignment   
+    return edit[len(seq1)-1][len(seq2)-1]       # optimal alignment score
    
 def Match_cost(letter1, letter2, prev_type):
     row = sub_dict[letter1]+1
@@ -100,7 +100,39 @@ def Insert_cost(letter1, letter2, prev_type):
         return g_0
     elif prev_type == 'I':
         return g_e  
+
+def backtrack(old_seq1, old_seq2, edit_type):
+    '''
+    edit_path needed?
+    '''
+    new_seq1 = ''
+    new_seq2 = ''
     
+    i = len(old_seq1)-1
+    j = len(old_seq2)-1
+    
+    while i > 0 and j > 0:
+        if edit_type[i][j] == 'M':
+            new_seq1 += old_seq1[i]
+            new_seq2 += old_seq2[j]
+            i -= 1
+            j -= 1
+        elif edit_type[i][j] == 'I':
+            new_seq1 += '-'
+            new_seq2 += old_seq2[j]
+            j -= 1
+        elif edit_type[i][j] == 'D': 
+            new_seq1 += old_seq1[i]
+            new_seq2 += '-'
+            i -= 1
+    # reverses the alignment as they were constructed in reverse
+    new_seq1 = new_seq1[::-1]
+    new_seq2 = new_seq2[::-1]
+    
+    print(new_seq1)
+    print(new_seq2)
+        
+    ########## Alignment is muddled somewhere ##########
     
 
 a = open('seq1', 'r')
@@ -129,8 +161,7 @@ g_0 = 10                    # so it's not favourable
 # define global variable: g_e, gap extension penalty
 g_e = 5                     # more favourable then opening a new gap
 
-
-edit_distance(b_seq, a_seq)
+opt_alignment(b_seq, a_seq)
 '''
 edit_distance('ATA', 'AGTA')
 '''
