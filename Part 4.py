@@ -4,15 +4,9 @@ Created: 12/10/16
 Author: Anthony Silvestre
 Purpose: 
 """
-import numpy as np
-import time as t
-'''
-def opt_alignment(seq1, seq2, sub_mat):
-'''    
-
 def opt_alignment(seq1, seq2):
     '''
-    Computes the edit distance betweeen the two input sequences iteratively
+    Computes the optimal alignment and optimal alignment score of two sequences
     '''
     edit = [x[:] for x in [[0]*(len(seq2)+1)]*(len(seq1)+1)]
     edit_type = [x[:] for x in [[0]*(len(seq2)+1)]*(len(seq1)+1)]
@@ -74,9 +68,9 @@ def opt_alignment(seq1, seq2):
                     edit[i][j] = edit[i][j-1] + cost
                     edit_type[i][j] = 'I'
                     edit_path[i][j] = 'l'
-                    
-    print(backtrack(seq1, seq2, edit_type))     # outputs the optimal alignment   
-    return edit[len(seq1)-1][len(seq2)-1]       # optimal alignment score
+    
+    # returns the optimal alignment and optimal alignment score
+    return [backtrack(seq1, seq2, edit_type), edit[len(seq1)-1][len(seq2)-1]]
    
 def Match_cost(letter1, letter2, prev_type):
     row = sub_dict[letter1]+1
@@ -119,7 +113,7 @@ def backtrack(old_seq1, old_seq2, edit_type):
     i = len(old_seq1)-1
     j = len(old_seq2)-1
     
-    while i > 0 and j > 0:
+    while i > -1 and j > -1:
         if edit_type[i][j] == 'M':
             new_seq1 += old_seq1[i]
             new_seq2 += old_seq2[j]
@@ -137,10 +131,7 @@ def backtrack(old_seq1, old_seq2, edit_type):
     new_seq1 = new_seq1[::-1]
     new_seq2 = new_seq2[::-1]
     
-    print(new_seq1)
-    print(new_seq2)
-        
-    ########## Alignment is muddled somewhere ##########
+    return [new_seq2, new_seq1]
     
 
 a = open('seq1', 'r')
@@ -149,9 +140,6 @@ a.close()
 b = open('seq2', 'r')
 b_seq = b.read().rstrip()
 b.close()
-print(a_seq)
-print(b_seq)
-print()
 
 f = open('submat', 'r')
 submat = [line.split() for line in f]
@@ -166,11 +154,13 @@ for letter in submat[0]:
 
 # define global variable: g_0, gap opening penalty
 g_0 = 10                    # so it's not favourable
-
 # define global variable: g_e, gap extension penalty
 g_e = 5                     # more favourable then opening a new gap
 
-opt_alignment(b_seq, a_seq)
-'''
-edit_distance('ATA', 'AGTA')
-'''
+[[align_str1, align_str2], align_score] = opt_alignment(b_seq, a_seq)
+print('String 1: ', a_seq)
+print('String 2: ', b_seq)
+print()
+print('Aligned string 1: ', align_str1)
+print('Aligned string 2: ', align_str2)
+print('Alignment score: ', align_score)
